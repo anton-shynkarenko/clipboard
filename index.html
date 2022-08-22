@@ -12,7 +12,7 @@
 <body>
 
 <h1>Clipboard test</h1>
-<p class="toCopy">some text that will be be copied</p>
+<p>some text that will be be copied</p>
 <p data-copy="different text">another text, but data-copy attribute will be copied instead</p>
 <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -76,7 +76,7 @@
                         </svg>
                         <p class="tooltip" style="display: none; background-color: black; color: white; position: absolute; top: 15px; right: 0; white-space: nowrap;">Copy to clipboard</p>
                     </div>
-`;
+                `;
 
                 return this.each(() => {
                     let $this = $(this);
