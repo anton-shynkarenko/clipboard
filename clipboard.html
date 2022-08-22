@@ -1,0 +1,130 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Clipboard test</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        * {
+            border: 1px solid red;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Clipboard test</h1>
+<p class="toCopy">some text that will be be copied</p>
+<p data-copy="different text">another text, but data-copy attribute will be copied instead</p>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        (function ($) {
+            $.fn.initClipboard = function () {
+                const Clipboard = (function (window, document, navigator) {
+                    var textArea,
+                        copy;
+
+                    function isOS() {
+                        return navigator.userAgent.match(/ipad|iphone/i);
+                    }
+
+                    function createTextArea(text) {
+                        textArea = document.createElement('textArea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                    }
+
+                    function selectText() {
+                        var range,
+                            selection;
+
+                        if (isOS()) {
+                            range = document.createRange();
+                            range.selectNodeContents(textArea);
+                            selection = window.getSelection();
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            textArea.setSelectionRange(0, 999999);
+                        } else {
+                            textArea.select();
+                        }
+                    }
+
+                    function copyToClipboard() {
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                    }
+
+                    copy = function (text) {
+                        createTextArea(text);
+                        selectText();
+                        copyToClipboard();
+                    };
+
+                    return {
+                        copy: copy
+                    };
+                })(window, document, navigator);
+
+                return this.each(function () {
+                    console.log(this);
+                    const wrapper = `<div class="copy-wrap" style="position: relative; width: max-content;"></div>`;
+                    const icon = `<div style="display: none; position: absolute; right: 0;"
+            class="copy"><svg style="position: absolute; right: 0;" height="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+        <!-- Font Awesome Pro 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) -->
+        <path d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56h168zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24zm120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97z"/>
+    </svg>
+    <p class="tooltip" style="display: none; background-color: black; color: white; position: absolute; top: 15px; right: 0; white-space: nowrap;">Copy to clipboard</p>
+    </div>`;
+                    $(this).wrap(wrapper);
+                    $(this).before(icon);
+
+                    $(this).prev(".copy").click((e) => {
+                        let nextElement = $(e.currentTarget).next();
+                        let text = nextElement.data("copy");
+
+                        if (text === undefined) {
+                            text = nextElement.text();
+                        }
+
+                        Clipboard.copy(text);
+
+                        $(e.currentTarget).children(".tooltip").text('Copied');
+
+                        setTimeout(() => {
+                            $(e.currentTarget).children(".tooltip").text('Copy to clipboard');
+                        }, 5000);
+
+                    });
+
+                    $(this).prev(".copy").hover(
+                        (e) => {
+                            $(e.currentTarget).children(".tooltip").css("display", "block");
+                        },
+                        (e) => {
+                            $(e.currentTarget).children(".tooltip").css("display", "none");
+                        }
+                    );
+
+                    $(this).parent().hover(
+                        (e) => {
+                            $(e.currentTarget).children(".copy").css("display", "block");
+                        },
+                        (e) => {
+                            $(e.currentTarget).children(".copy").css("display", "none");
+                        }
+                    );
+                });
+            };
+        }(jQuery));
+
+        $("p").initClipboard();
+    });
+
+</script>
+</body>
+</html>
